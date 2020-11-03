@@ -20,7 +20,7 @@ WORKDIR /go/build
 RUN go build -o app app.go
 
 # https://docs.docker.com/develop/develop-images/multistage-build/
-# https://github.com/phusion/baseimage-docker
+# https://github.com/GoogleContainerTools/distroless
 FROM gcr.io/distroless/base-debian10
 
 WORKDIR /app/
