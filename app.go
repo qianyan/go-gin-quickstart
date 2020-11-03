@@ -23,7 +23,7 @@ func main() {
 
 	r := gin.Default()
 
-	config.LoadConfig("infra/config/config.json")
+	config.LoadConfig("config.json")
 
 	if err := logger.InitLogger(config.Conf.LogConfig); err != nil {
 		fmt.Printf("init logger failed, err:%v\n", err)
