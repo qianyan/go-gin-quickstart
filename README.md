@@ -1,4 +1,5 @@
 # Go gin quickstart
+go gin web framework scaffold
 
 # How it works
 ```go
