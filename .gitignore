@@ -20,3 +20,5 @@ coverage.txt
 
 bak.*
 go-gin-quickstart
+
+*.log

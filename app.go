@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/qianyan/go-gin-quickstart/infra/config"
+	"github.com/qianyan/go-gin-quickstart/infra/logger"
 
 	"github.com/jinzhu/gorm"
 	"github.com/qianyan/go-gin-quickstart/domain/users"
@@ -19,6 +22,17 @@ func main() {
 	defer db.Close()
 
 	r := gin.Default()
+
+	config.LoadConfig("infra/config/config.json")
+
+	if err := logger.InitLogger(config.Conf.LogConfig); err != nil {
+		fmt.Printf("init logger failed, err:%v\n", err)
+		return
+	}
+
+	gin.SetMode(config.Conf.Mode)
+
+	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
 	userResource(r)
 
