@@ -18,18 +18,18 @@ import (
 
 var lg *zap.Logger
 
-func MustGetLogger(loggerName string) *zap.Logger {
-	return zap.New(zapcore.NewCore(encoder(), zapcore.AddSync(os.Stdout), zapcore.InfoLevel)).Named(loggerName)
+func MustGetLogger(loggerName string) *Logger {
+	core := zapcore.NewCore(encoder(), zapcore.AddSync(os.Stdout), zapcore.InfoLevel)
+	return NewLogger(NewZapLogger(core).Named(loggerName))
 }
 
 func InitLogger(cfg *config.LogConfig) (err error) {
 	writeSyncer := logWriter(cfg.Filename, cfg.MaxSize, cfg.MaxBackups, cfg.MaxAge, cfg.Compress)
-	encoder := encoder()
 	level, err := logLevel(cfg.Level)
 	if err != nil {
 		return
 	}
-	core := zapcore.NewCore(encoder, zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), writeSyncer), level)
+	core := zapcore.NewCore(encoder(), zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), writeSyncer), level)
 
 	lg = zap.New(core, zap.AddCaller())
 	zap.ReplaceGlobals(lg)
