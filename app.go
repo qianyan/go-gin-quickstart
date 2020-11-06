@@ -14,8 +14,7 @@ func main() {
 
 	db := &infra.Sqlite{}
 	db.OpenDB("./gorm.db")
-	users.Init(db)
-	users.Migrate()
+	users.Init(db, true)
 	defer db.CloseDB()
 
 	r := gin.Default()

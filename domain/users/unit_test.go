@@ -94,8 +94,7 @@ func TestUserModel(t *testing.T) {
 func resetDBWithMock() {
 	infra.TestDBFree(test_db)
 	test_db = infra.TestDBInit()
-	Init(test_db)
-	Migrate()
+	Init(test_db, true)
 	userModelMocker(3)
 }
 
@@ -382,7 +381,7 @@ var unauthRequestTests = []struct {
 		func(req *http.Request) {
 			infra.TestDBFree(test_db)
 			test_db = infra.TestDBInit()
-			Init(test_db)
+			Init(test_db, false)
 			test_db.Get().AutoMigrate(&UserModel{})
 			userModelMocker(3)
 			HeaderTokenMock(req, 2)
@@ -516,8 +515,7 @@ func TestWithoutAuth(t *testing.T) {
 //You can read TestWithoutAuth's comment to know how to not share database each case.
 func TestMain(m *testing.M) {
 	test_db = infra.TestDBInit()
-	Init(test_db)
-	Migrate()
+	Init(test_db, true)
 	exitVal := m.Run()
 	infra.TestDBFree(test_db)
 	os.Exit(exitVal)

@@ -43,14 +43,12 @@ var (
 	repository infra.Database
 )
 
-// Migrate the schema of database if needed
-func Migrate() {
-	repository.Get().AutoMigrate(&UserModel{})
-	repository.Get().AutoMigrate(&FollowModel{})
-}
-
-func Init(db infra.Database) {
+func Init(db infra.Database, enableMigrate bool) {
 	repository = db
+	if enableMigrate {
+		repository.Get().AutoMigrate(&UserModel{})
+		repository.Get().AutoMigrate(&FollowModel{})
+	}
 }
 
 // What's bcrypt? https://en.wikipedia.org/wiki/Bcrypt
