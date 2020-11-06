@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"github.com/qianyan/go-gin-quickstart/infra"
 	"net/http"
 	"net/http/httptest"
@@ -16,7 +15,7 @@ import (
 )
 
 var image_url = "https://golang.org/doc/gopher/frontpage.png"
-var test_db *gorm.DB
+var test_db *infra.Sqlite
 
 func newUserModel() UserModel {
 	return UserModel{
@@ -31,7 +30,7 @@ func newUserModel() UserModel {
 
 func userModelMocker(n int) []UserModel {
 	var offset int
-	test_db.Model(&UserModel{}).Count(&offset)
+	test_db.Get().Model(&UserModel{}).Count(&offset)
 	var ret []UserModel
 	for i := offset + 1; i <= offset+n; i++ {
 		image := fmt.Sprintf("http://image/%v.jpg", i)
@@ -42,7 +41,7 @@ func userModelMocker(n int) []UserModel {
 			Image:    &image,
 		}
 		userModel.setPassword("password123")
-		test_db.Create(&userModel)
+		test_db.Get().Create(&userModel)
 		ret = append(ret, userModel)
 	}
 	return ret
@@ -95,7 +94,8 @@ func TestUserModel(t *testing.T) {
 func resetDBWithMock() {
 	infra.TestDBFree(test_db)
 	test_db = infra.TestDBInit()
-	AutoMigrate(test_db)
+	Init(test_db)
+	Migrate()
 	userModelMocker(3)
 }
 
@@ -516,7 +516,8 @@ func TestWithoutAuth(t *testing.T) {
 //You can read TestWithoutAuth's comment to know how to not share database each case.
 func TestMain(m *testing.M) {
 	test_db = infra.TestDBInit()
-	AutoMigrate(test_db)
+	Init(test_db)
+	Migrate()
 	exitVal := m.Run()
 	infra.TestDBFree(test_db)
 	os.Exit(exitVal)

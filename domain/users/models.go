@@ -39,10 +39,18 @@ type FollowModel struct {
 	FollowedByID uint
 }
 
+var (
+	repository infra.Database
+)
+
 // Migrate the schema of database if needed
-func AutoMigrate(db *gorm.DB) {
-	db.AutoMigrate(&UserModel{})
-	db.AutoMigrate(&FollowModel{})
+func Migrate() {
+	repository.Get().AutoMigrate(&UserModel{})
+	repository.Get().AutoMigrate(&FollowModel{})
+}
+
+func Init(db infra.Database) {
+	repository = db
 }
 
 // What's bcrypt? https://en.wikipedia.org/wiki/Bcrypt
@@ -80,7 +88,7 @@ func FindOneUser(condition interface{}) (UserModel, error) {
 // You could input an UserModel which will be saved in database returning with error info
 // 	if err := SaveOne(&userModel); err != nil { ... }
 func SaveOne(data interface{}) error {
-	db := infra.GetDB()
+	db := db()
 	err := db.Save(data).Error
 	return err
 }
@@ -88,7 +96,7 @@ func SaveOne(data interface{}) error {
 // You could update properties of an UserModel to database returning with error info.
 //  err := db.Model(userModel).Update(UserModel{Username: "wangzitian0"}).Error
 func (model *UserModel) Update(data interface{}) error {
-	db := infra.GetDB()
+	db := db()
 	err := db.Model(model).Update(data).Error
 	return err
 }
@@ -96,7 +104,7 @@ func (model *UserModel) Update(data interface{}) error {
 // You could add a following relationship as userModel1 following userModel2
 // 	err = userModel1.following(userModel2)
 func (u UserModel) following(v UserModel) error {
-	db := infra.GetDB()
+	db := db()
 	var follow FollowModel
 	err := db.FirstOrCreate(&follow, &FollowModel{
 		FollowingID:  v.ID,
@@ -108,7 +116,7 @@ func (u UserModel) following(v UserModel) error {
 // You could check whether  userModel1 following userModel2
 // 	followingBool = myUserModel.isFollowing(self.UserModel)
 func (u UserModel) isFollowing(v UserModel) bool {
-	db := infra.GetDB()
+	db := db()
 	var follow FollowModel
 	db.Where(FollowModel{
 		FollowingID:  v.ID,
@@ -120,7 +128,7 @@ func (u UserModel) isFollowing(v UserModel) bool {
 // You could delete a following relationship as userModel1 following userModel2
 // 	err = userModel1.unFollowing(userModel2)
 func (u UserModel) unFollowing(v UserModel) error {
-	db := infra.GetDB()
+	db := db()
 	err := db.Where(FollowModel{
 		FollowingID:  v.ID,
 		FollowedByID: u.ID,
@@ -131,7 +139,7 @@ func (u UserModel) unFollowing(v UserModel) error {
 // You could get a following list of userModel
 // 	followings := userModel.GetFollowings()
 func (u UserModel) GetFollowings() []UserModel {
-	db := infra.GetDB()
+	db := db()
 	tx := db.Begin()
 	var follows []FollowModel
 	var followings []UserModel
@@ -145,4 +153,8 @@ func (u UserModel) GetFollowings() []UserModel {
 	}
 	tx.Commit()
 	return followings
+}
+
+func db() *gorm.DB {
+	return repository.Get()
 }

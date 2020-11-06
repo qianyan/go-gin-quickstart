@@ -1,8 +1,8 @@
 package users
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"github.com/qianyan/go-gin-quickstart/infra"
 	"github.com/qianyan/go-gin-quickstart/infra/logger"
 	"net/http"

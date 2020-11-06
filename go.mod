@@ -12,6 +12,7 @@ require (
 	github.com/lib/pq v1.8.0 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.6.1
 	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897

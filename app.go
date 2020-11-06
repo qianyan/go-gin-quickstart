@@ -6,20 +6,17 @@ import (
 	"github.com/qianyan/go-gin-quickstart/infra/config"
 	"github.com/qianyan/go-gin-quickstart/infra/logger"
 
-	"github.com/jinzhu/gorm"
 	"github.com/qianyan/go-gin-quickstart/domain/users"
 	"github.com/qianyan/go-gin-quickstart/infra"
 )
 
-func Migrate(db *gorm.DB) {
-	users.AutoMigrate(db)
-}
-
 func main() {
 
-	db := infra.Init()
-	Migrate(db)
-	defer db.Close()
+	db := &infra.Sqlite{}
+	db.OpenDB("./gorm.db")
+	users.Init(db)
+	users.Migrate()
+	defer db.CloseDB()
 
 	r := gin.Default()
 
