@@ -105,6 +105,7 @@ func HeaderTokenMock(req *http.Request, u uint) {
 
 //You could write the init logic like reset database code here
 var unauthRequestTests = []struct {
+	name           string
 	init           func(*http.Request)
 	url            string
 	method         string
@@ -118,6 +119,7 @@ var unauthRequestTests = []struct {
 
 	//---------------------   Testing for user register   ---------------------
 	{
+		"valid data and should return StatusCreated",
 		func(req *http.Request) {
 			resetDBWithMock()
 		},
@@ -129,6 +131,7 @@ var unauthRequestTests = []struct {
 		"valid data and should return StatusCreated",
 	},
 	{
+		"duplicated data and should return StatusUnprocessableEntity",
 		func(req *http.Request) {},
 		"/users/",
 		"POST",
@@ -138,6 +141,7 @@ var unauthRequestTests = []struct {
 		"duplicated data and should return StatusUnprocessableEntity",
 	},
 	{
+		"too short username should return error",
 		func(req *http.Request) {},
 		"/users/",
 		"POST",
@@ -147,6 +151,7 @@ var unauthRequestTests = []struct {
 		"too short username should return error",
 	},
 	{
+		"too short password should return error",
 		func(req *http.Request) {},
 		"/users/",
 		"POST",
@@ -156,6 +161,7 @@ var unauthRequestTests = []struct {
 		"too short password should return error",
 	},
 	{
+		"email invalid should return error",
 		func(req *http.Request) {},
 		"/users/",
 		"POST",
@@ -167,6 +173,7 @@ var unauthRequestTests = []struct {
 
 	//---------------------   Testing for user login   ---------------------
 	{
+		"right info login should return user",
 		func(req *http.Request) {
 			resetDBWithMock()
 		},
@@ -178,6 +185,7 @@ var unauthRequestTests = []struct {
 		"right info login should return user",
 	},
 	{
+		"email not exist should return error info",
 		func(req *http.Request) {},
 		"/users/login",
 		"POST",
@@ -187,6 +195,7 @@ var unauthRequestTests = []struct {
 		"email not exist should return error info",
 	},
 	{
+		"password error should return error info",
 		func(req *http.Request) {},
 		"/users/login",
 		"POST",
@@ -196,6 +205,7 @@ var unauthRequestTests = []struct {
 		"password error should return error info",
 	},
 	{
+		"password too short should return error info",
 		func(req *http.Request) {},
 		"/users/login",
 		"POST",
@@ -205,6 +215,7 @@ var unauthRequestTests = []struct {
 		"password too short should return error info",
 	},
 	{
+		"password too short should return error info",
 		func(req *http.Request) {},
 		"/users/login",
 		"POST",
@@ -216,6 +227,7 @@ var unauthRequestTests = []struct {
 
 	//---------------------   Testing for self info get & auth module  ---------------------
 	{
+		"request should return 401 without token",
 		func(req *http.Request) {
 			resetDBWithMock()
 		},
@@ -227,6 +239,7 @@ var unauthRequestTests = []struct {
 		"request should return 401 without token",
 	},
 	{
+		"wrong token should return 401",
 		func(req *http.Request) {
 			req.Header.Set("Authorization", fmt.Sprintf("Tokee %v", infra.GenToken(1)))
 		},
@@ -238,6 +251,7 @@ var unauthRequestTests = []struct {
 		"wrong token should return 401",
 	},
 	{
+		"request should return current user with token",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 1)
 		},
@@ -251,6 +265,7 @@ var unauthRequestTests = []struct {
 
 	//---------------------   Testing for users' profile get   ---------------------
 	{
+		"request should return self profile",
 		func(req *http.Request) {
 			resetDBWithMock()
 			HeaderTokenMock(req, 1)
@@ -263,6 +278,7 @@ var unauthRequestTests = []struct {
 		"request should return self profile",
 	},
 	{
+		"request should return correct other's profile",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 2)
 		},
@@ -276,6 +292,7 @@ var unauthRequestTests = []struct {
 
 	//---------------------   Testing for users' profile update   ---------------------
 	{
+		"user should not exist profile before changed",
 		func(req *http.Request) {
 			resetDBWithMock()
 			HeaderTokenMock(req, 1)
@@ -288,6 +305,7 @@ var unauthRequestTests = []struct {
 		"user should not exist profile before changed",
 	},
 	{
+		"current user profile should be changed",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 1)
 		},
@@ -299,6 +317,7 @@ var unauthRequestTests = []struct {
 		"current user profile should be changed",
 	},
 	{
+		"request should return self profile after changed",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 1)
 		},
@@ -310,6 +329,7 @@ var unauthRequestTests = []struct {
 		"request should return self profile after changed",
 	},
 	{
+		"user should login using new password after changed",
 		func(req *http.Request) {},
 		"/users/login",
 		"POST",
@@ -319,6 +339,7 @@ var unauthRequestTests = []struct {
 		"user should login using new password after changed",
 	},
 	{
+		"current user profile should not be changed with error user info",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 2)
 		},
@@ -332,6 +353,7 @@ var unauthRequestTests = []struct {
 
 	//---------------------   Testing for db errors   ---------------------
 	{
+		"test database pk error for user update",
 		func(req *http.Request) {
 			resetDBWithMock()
 			HeaderTokenMock(req, 4)
@@ -344,6 +366,7 @@ var unauthRequestTests = []struct {
 		"test database pk error for user update",
 	},
 	{
+		"cheat validator and test database connecting error for user update",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 0)
 		},
@@ -355,11 +378,12 @@ var unauthRequestTests = []struct {
 		"cheat validator and test database connecting error for user update",
 	},
 	{
+		"test database error for following",
 		func(req *http.Request) {
 			infra.TestDBFree(test_db)
 			test_db = infra.TestDBInit()
-
-			test_db.AutoMigrate(&UserModel{})
+			Init(test_db)
+			test_db.Get().AutoMigrate(&UserModel{})
 			userModelMocker(3)
 			HeaderTokenMock(req, 2)
 		},
@@ -371,6 +395,7 @@ var unauthRequestTests = []struct {
 		"test database error for following",
 	},
 	{
+		"test database error for canceling following",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 2)
 		},
@@ -382,6 +407,7 @@ var unauthRequestTests = []struct {
 		"test database error for canceling following",
 	},
 	{
+		"following wrong user name should return errors",
 		func(req *http.Request) {
 			resetDBWithMock()
 			HeaderTokenMock(req, 2)
@@ -394,6 +420,7 @@ var unauthRequestTests = []struct {
 		"following wrong user name should return errors",
 	},
 	{
+		"cancel following wrong user name should return errors",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 2)
 		},
@@ -407,6 +434,7 @@ var unauthRequestTests = []struct {
 
 	//---------------------   Testing for user following   ---------------------
 	{
+		"user follow another should work",
 		func(req *http.Request) {
 			resetDBWithMock()
 			HeaderTokenMock(req, 2)
@@ -419,6 +447,7 @@ var unauthRequestTests = []struct {
 		"user follow another should work",
 	},
 	{
+		"user follow another should make sure database changed",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 2)
 		},
@@ -430,6 +459,7 @@ var unauthRequestTests = []struct {
 		"user follow another should make sure database changed",
 	},
 	{
+		"user cancel follow another should work",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 2)
 		},
@@ -441,6 +471,7 @@ var unauthRequestTests = []struct {
 		"user cancel follow another should work",
 	},
 	{
+		"user cancel follow another should make sure database changed",
 		func(req *http.Request) {
 			HeaderTokenMock(req, 2)
 		},
@@ -454,9 +485,6 @@ var unauthRequestTests = []struct {
 }
 
 func TestWithoutAuth(t *testing.T) {
-	asserts := assert.New(t)
-	//You could write the reset database code here if you want to create a database for this block
-	//resetDB()
 
 	r := gin.New()
 	UsersRegister(r.Group("/users"))
@@ -464,18 +492,23 @@ func TestWithoutAuth(t *testing.T) {
 	SpecifiedUser(r.Group("/user"))
 	ProfileRegister(r.Group("/profiles"))
 	for _, testData := range unauthRequestTests {
-		bodyData := testData.bodyData
-		req, err := http.NewRequest(testData.method, testData.url, bytes.NewBufferString(bodyData))
-		req.Header.Set("Content-Type", "application/json")
-		asserts.NoError(err)
+		t.Run(testData.name, func(t *testing.T) {
+			asserts := assert.New(t)
 
-		testData.init(req)
+			bodyData := testData.bodyData
+			req, err := http.NewRequest(testData.method, testData.url, bytes.NewBufferString(bodyData))
+			req.Header.Set("Content-Type", "application/json")
+			asserts.NoError(err)
 
-		w := httptest.NewRecorder()
-		r.ServeHTTP(w, req)
+			testData.init(req)
 
-		asserts.Equal(testData.expectedCode, w.Code, "Response Status - "+testData.msg)
-		asserts.Regexp(testData.responseRegexg, w.Body.String(), "Response Content - "+testData.msg)
+			w := httptest.NewRecorder()
+			r.ServeHTTP(w, req)
+
+			asserts.Equal(testData.expectedCode, w.Code, "Response Status - "+testData.msg)
+			asserts.Regexp(testData.responseRegexg, w.Body.String(), "Response Content - "+testData.msg)
+		})
+
 	}
 }
 
