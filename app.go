@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-
 	db := &infra.Sqlite{}
 	db.OpenDB("./gorm.db")
 	users.Init(db, true)
@@ -21,8 +20,13 @@ func main() {
 
 	config.LoadConfig("config.json")
 
-	if err := logger.InitLogger(config.Conf.LogConfig); err != nil {
-		fmt.Printf("init logger failed, err:%v\n", err)
+	if err := logger.InitStatLogger(config.Conf.StatLogConfig); err != nil {
+		fmt.Printf("init statistic logger failed, err:%v\n", err)
+		return
+	}
+
+	if err := logger.InitDiagLogger(config.Conf.DiagLogConfig); err != nil {
+		fmt.Printf("init diagnostic logger failed, err:%v\n", err)
 		return
 	}
 

@@ -16,14 +16,19 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var lg *zap.Logger
+var statLog *zap.Logger
+var diagLog *zap.Logger
 
-func MustGetLogger(loggerName string) *Logger {
-	core := zapcore.NewCore(encoder(), zapcore.AddSync(os.Stdout), zapcore.InfoLevel)
-	return NewLogger(NewZapLogger(core).Named(loggerName))
+func init() {
+	statLog = zap.NewNop()
+	diagLog = zap.NewNop()
 }
 
-func InitLogger(cfg *config.LogConfig) (err error) {
+func MustGetLogger(loggerName string) *Logger {
+	return NewLogger(NewZapLogger(diagLog.Core()).Named(loggerName))
+}
+
+func InitStatLogger(cfg *config.LogConfig) (err error) {
 	writeSyncer := logWriter(cfg.Filename, cfg.MaxSize, cfg.MaxBackups, cfg.MaxAge, cfg.Compress)
 	level, err := logLevel(cfg.Level)
 	if err != nil {
@@ -31,8 +36,20 @@ func InitLogger(cfg *config.LogConfig) (err error) {
 	}
 	core := zapcore.NewCore(encoder(), zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), writeSyncer), level)
 
-	lg = zap.New(core, zap.AddCaller())
-	zap.ReplaceGlobals(lg)
+	statLog = zap.New(core, zap.AddCaller())
+	zap.ReplaceGlobals(statLog)
+	return
+}
+
+func InitDiagLogger(cfg *config.LogConfig) (err error) {
+	writeSyncer := logWriter(cfg.Filename, cfg.MaxSize, cfg.MaxBackups, cfg.MaxAge, cfg.Compress)
+	level, err := logLevel(cfg.Level)
+	if err != nil {
+		return
+	}
+	core := zapcore.NewCore(encoder(), zapcore.NewMultiWriteSyncer(writeSyncer), level)
+
+	diagLog = zap.New(core, zap.AddCaller())
 	return
 }
 
@@ -71,7 +88,7 @@ func GinLogger() gin.HandlerFunc {
 		c.Next()
 
 		cost := time.Since(start)
-		lg.Info(path,
+		statLog.Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
 			zap.String("path", path),
@@ -101,7 +118,7 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 
 				httpRequest, _ := httputil.DumpRequest(c.Request, false)
 				if brokenPipe {
-					lg.Error(c.Request.URL.Path,
+					statLog.Error(c.Request.URL.Path,
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 					)
@@ -112,13 +129,13 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 				}
 
 				if stack {
-					lg.Error("[Recovery from panic]",
+					statLog.Error("[Recovery from panic]",
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 						zap.String("stack", string(debug.Stack())),
 					)
 				} else {
-					lg.Error("[Recovery from panic]",
+					statLog.Error("[Recovery from panic]",
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 					)

@@ -6,9 +6,10 @@ import (
 )
 
 type Config struct {
-	Mode       string `json:"mode"`
-	Port       int    `json:"port"`
-	*LogConfig `json:"log"`
+	Mode          string     `json:"mode"`
+	Port          int        `json:"port"`
+	DiagLogConfig *LogConfig `json:"diag"`
+	StatLogConfig *LogConfig `json:"stat"`
 }
 
 type LogConfig struct {
@@ -17,7 +18,7 @@ type LogConfig struct {
 	MaxSize    int    `json:"maxsize"`
 	MaxAge     int    `json:"max_age"`
 	MaxBackups int    `json:"max_backups"`
-	Compress bool    `json:"compress"`
+	Compress   bool   `json:"compress"`
 }
 
 var Conf = new(Config)
