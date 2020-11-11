@@ -12,10 +12,6 @@ type MySQL struct {
 	db *gorm.DB
 }
 
-var (
-	log = logging.MustGetLogger("MySQL")
-)
-
 func (mysql *MySQL) OpenDB(uri string) {
 	db, err := gorm.Open("mysql", uri)
 	if err != nil {
@@ -30,7 +26,7 @@ func (mysql *MySQL) OpenDB(uri string) {
 
 func (mysql *MySQL) CloseDB() {
 	err := mysql.db.Close()
-	log.Error("Close MySQL", zap.Error(err))
+	logging.DiagLog.Error("Close MySQL", zap.Error(err))
 }
 
 func (mysql *MySQL) Get() *gorm.DB {

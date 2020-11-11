@@ -8,10 +8,6 @@ import (
 	"net/http"
 )
 
-var (
-	logger = logging.MustGetLogger("users")
-)
-
 func UsersRegister(router *gin.RouterGroup) {
 	router.POST("/", UsersRegistration)
 	router.POST("/login", UsersLogin)
@@ -77,7 +73,7 @@ func ProfileUnfollow(c *gin.Context) {
 func UsersRegistration(c *gin.Context) {
 	userModelValidator := NewUserModelValidator()
 	if err := userModelValidator.Bind(c); err != nil {
-		logger.Info("UsersRegistration binding error")
+		logging.DiagLog.Info("UsersRegistration binding error")
 		c.JSON(http.StatusUnprocessableEntity, infra.NewValidatorError(err))
 		return
 	}

@@ -17,16 +17,7 @@ import (
 )
 
 var statLog *zap.Logger
-var diagLog *zap.Logger
-
-func init() {
-	statLog = zap.NewNop()
-	diagLog = zap.NewNop()
-}
-
-func MustGetLogger(loggerName string) *Logger {
-	return NewLogger(NewZapLogger(diagLog.Core()).Named(loggerName))
-}
+var DiagLog *Logger
 
 func InitStatLogger(cfg *config.LogConfig) (err error) {
 	writeSyncer := logWriter(cfg.Filename, cfg.MaxSize, cfg.MaxBackups, cfg.MaxAge, cfg.Compress)
@@ -49,7 +40,7 @@ func InitDiagLogger(cfg *config.LogConfig) (err error) {
 	}
 	core := zapcore.NewCore(encoder(), zapcore.NewMultiWriteSyncer(writeSyncer), level)
 
-	diagLog = zap.New(core, zap.AddCaller())
+	DiagLog = NewLogger(zap.New(core, zap.AddCaller()))
 	return
 }
 
