@@ -38,7 +38,7 @@ func main() {
 
 	healthCheck(r)
 
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run(fmt.Sprintf(":%v", config.Conf.Port))
 }
 
 func userResource(r *gin.Engine) {
