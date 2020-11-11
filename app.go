@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/qianyan/go-gin-quickstart/infra/config"
-	"github.com/qianyan/go-gin-quickstart/infra/logger"
+	"github.com/qianyan/go-gin-quickstart/infra/logging"
 
 	"github.com/qianyan/go-gin-quickstart/domain/users"
 	"github.com/qianyan/go-gin-quickstart/infra"
@@ -20,19 +20,19 @@ func main() {
 
 	config.LoadConfig("config.json")
 
-	if err := logger.InitStatLogger(config.Conf.StatLogConfig); err != nil {
+	if err := logging.InitStatLogger(config.Conf.StatLogConfig); err != nil {
 		fmt.Printf("init statistic logger failed, err:%v\n", err)
 		return
 	}
 
-	if err := logger.InitDiagLogger(config.Conf.DiagLogConfig); err != nil {
+	if err := logging.InitDiagLogger(config.Conf.DiagLogConfig); err != nil {
 		fmt.Printf("init diagnostic logger failed, err:%v\n", err)
 		return
 	}
 
 	gin.SetMode(config.Conf.Mode)
 
-	r.Use(logger.GinLogger(), logger.GinRecovery(true))
+	r.Use(logging.GinLogger(), logging.GinRecovery(true))
 
 	userResource(r)
 

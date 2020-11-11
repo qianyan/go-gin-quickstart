@@ -2,7 +2,7 @@ package infra
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/qianyan/go-gin-quickstart/infra/logger"
+	"github.com/qianyan/go-gin-quickstart/infra/logging"
 	"go.uber.org/zap"
 	//import mysql driver
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -13,7 +13,7 @@ type MySQL struct {
 }
 
 var (
-	log = logger.MustGetLogger("MySQL")
+	log = logging.MustGetLogger("MySQL")
 )
 
 func (mysql *MySQL) OpenDB(uri string) {

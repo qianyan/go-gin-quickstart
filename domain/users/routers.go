@@ -4,12 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/qianyan/go-gin-quickstart/infra"
-	"github.com/qianyan/go-gin-quickstart/infra/logger"
+	"github.com/qianyan/go-gin-quickstart/infra/logging"
 	"net/http"
 )
 
 var (
-	log = logger.MustGetLogger("users")
+	logger = logging.MustGetLogger("users")
 )
 
 func UsersRegister(router *gin.RouterGroup) {
@@ -77,7 +77,7 @@ func ProfileUnfollow(c *gin.Context) {
 func UsersRegistration(c *gin.Context) {
 	userModelValidator := NewUserModelValidator()
 	if err := userModelValidator.Bind(c); err != nil {
-		log.Info("UsersRegistration binding error")
+		logger.Info("UsersRegistration binding error")
 		c.JSON(http.StatusUnprocessableEntity, infra.NewValidatorError(err))
 		return
 	}
