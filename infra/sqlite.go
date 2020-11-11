@@ -30,7 +30,7 @@ func (s *Sqlite) OpenDB(uri string) {
 
 func (s *Sqlite) CloseDB() {
 	err := s.db.Close()
-	err = os.Remove("./../gorm_test.db")
+	err = os.Remove(s.uri)
 	fmt.Println("Close Sqlite", zap.Error(err))
 }
 
